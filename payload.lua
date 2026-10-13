@@ -82,9 +82,10 @@ end
 -- 2. хук task.spawn / coroutine.resume: VM часто стартует главный поток через них
 --    логируем какую функцию туда пихают
 local function hookSpawn(name, root)
+    -- task и coroutine закрыты readonly: пробуем rawset, не вышло — скип без ошибки
     local f = root and root[name]
     if type(f) ~= "function" then return end
-    root[name] = function(fn, ...)
+    local wrapper = function(fn, ...)
         if type(fn) == "function" and getconstants then
             local ok, cs = pcall(getconstants, fn)
             if ok and type(cs) == "table" and #cs > 5 then
@@ -97,13 +98,16 @@ local function hookSpawn(name, root)
         end
         return f(fn, ...)
     end
-    a(META, "[HOOK] " .. name .. "\n")
+    if rawset then pcall(rawset, root, name, wrapper)
+    else pcall(function() root[name] = wrapper end) end
+    a(META, "[HOOK-TRY] " .. name .. "\n")
+    return
 end
 hookSpawn("spawn", task)
 hookSpawn("defer", task)
 if coroutine then
     local o = coroutine.resume
-    coroutine.resume = function(fn, ...)
+    local w2 = function(fn, ...)
         if type(fn) == "function" and getconstants then
             local ok, cs = pcall(getconstants, fn)
             if ok and type(cs) == "table" and #cs > 5 then
@@ -116,7 +120,9 @@ if coroutine then
         end
         return o(fn, ...)
     end
-    a(META, "[HOOK] coroutine.resume\n")
+    if rawset then pcall(rawset, coroutine, "resume", w2)
+    else pcall(function() coroutine.resume = w2 end) end
+    a(META, "[HOOK-TRY] coroutine.resume\n")
 end
 
 print("[stage5] on. запускай таргет, жди, кидай logdump")
