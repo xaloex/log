@@ -1,6 +1,6 @@
 --// stage5 ret-hook | runtime: Delta, Luau
 --// главный сурс уже расшифрован ВНУТРИ VM-функции #4, но наружу торчат
---// только хендлеры (move/bxor/yield). ловим то, что VM ВОЗВРАЩАЕТ и ВЫЗЫВАЕТ.
+--// только хендлеры (move/bxor/yield). ловим то, что VM ВОЗВРАЩАЕТ и ВЫЗЫВАЕТ.2
 
 local LOG = "logdump"
 pcall(function() if makefolder and not isfolder(LOG) then makefolder(LOG) end end)
