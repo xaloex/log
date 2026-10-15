@@ -8,7 +8,6 @@
                       [ PROTECTED BY XALOEX VM ]
 by xaloex
 -- OBFUSCATED BY XALOEX
--- CUSTOM RUST VM PROTECTION
 -- xaloex vm binding 01
 -- xaloex vm binding 02
 -- xaloex vm binding 03
